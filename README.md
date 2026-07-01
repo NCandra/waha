@@ -36,7 +36,7 @@
 ## Requirements
 
 Only thing that you must have - installed docker. Please follow the original
-instruction <a href="https://docs.docker.com/get-docker/" target="_blank" rel="noopener">how to install docker -></a>.
+instruction .
 
 When you are ready - come back and follows the below steps to send the first text message to WhatsApp via HTTP API!
 
@@ -48,11 +48,9 @@ Let's go over steps that allow you to send your first text message via WhatsApp 
 
 Assuming you have installed [Docker](https://docs.docker.com/get-docker/), let's download the image.
 
-
 ```bash
 docker pull devlikeapro/waha
 ```
-
 
 ```bash
 docker login -u devlikeapro -p {KEY}
@@ -76,44 +74,35 @@ docker run -it --rm -p 3000:3000/tcp --name waha devlikeapro/waha
 Open the link in your browser [http://localhost:3000/](http://localhost:3000/) and you'll see API documentation
 (Swagger).
 
-
 ### 3. Start a new session
 
 To start a new session you should have your mobile phone with installed WhatsApp application close to you.
 
 Please go and read how what we'll need to a bit
 later:
-<a href="https://faq.whatsapp.com/381777293328336/?helpref=hc_fnav" target="_blank">
-How to log in - the instruction on WhatsApp site
-</a>
 
 When your ready - find `POST /api/sessions`, click on **Try it out**, then **Execute** a bit below.
 
-
 The example payload:
+
 ```json
 {
   "name": "default"
 }
 ```
 
-
 By using the request with `name` values you can start multiple session (WhatsApp accounts) inside the single docker container in Plus
-
 
 ### 4. Get and scan QR
 
 Find `GET /api/screenshot` and execute it, it shows you QR code.
 
-
 **Scan the QR with your cell phone's WhatsApp app.**
-
 
 ### 5. Get the screenshot
 
 Execute `GET /api/screenshot` after a few seconds after scanning the QR - it'll show you the screenshot of you Whatsapp
 instance. If you can get the actual screenshot - then you're ready to start sending messages!
-
 
 ### 6. Send a text message
 
@@ -123,6 +112,7 @@ way: use a phone international phone number without `+` symbol and add `@c.us` a
 For phone number `12132132131` the `chatId` is  `12132132131@c.us`.
 
 The example payload:
+
 ```json
 {
   "chatId": "12132132130@c.us",
@@ -140,15 +130,18 @@ curl -d "{\"chatId\": \"${PHONE}@c.us\", \"text\": \"Hello from WhatsApp HTTP AP
 ```
 
 ## What is next?
+
 [Go and read the full documentation!](https://waha.devlike.pro/docs/overview/introduction/)
 
 # Development
 
 ## Start the project
+
 1. Clone the repository
 2. Make sure you're using node>=22 (check [.nvmrc](/.nvmrc) to get the version)
 3. Install the **whatsapp-rust-bridge prerequisites**:
- ```bash
+
+```bash
 # Bun runtime used by whatsapp-rust-bridge prepare scripts
 curl -fsSL https://bun.sh/install | bash -s -- bun-v1.3.9
 
@@ -159,6 +152,7 @@ cargo install wasm-pack --vers 0.14.0 --locked
 ```
 
 4. Run the following commands:
+
 ```bash
 # Install dependencies
 yarn install

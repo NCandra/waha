@@ -424,6 +424,8 @@ export class WhatsappSessionGoWSCore extends WhatsappSession {
         eventName === 'passkey-request' ||
         eventName === 'passkey-confirmation'
       ) {
+        this.logger.info(`Passkey event received: ${eventName}`);
+        this.status = WAHASessionStatus.SCAN_QR_CODE;
         return;
       }
       if (eventName !== 'code') {

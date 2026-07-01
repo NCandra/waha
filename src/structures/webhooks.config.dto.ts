@@ -86,6 +86,7 @@ export class WebhookConfig {
   @ApiProperty({
     example: ['message', 'session.status'],
     required: true,
+    enum: AllEvents,
   })
   @IsIn(AllEvents, { each: true })
   @IsArray()

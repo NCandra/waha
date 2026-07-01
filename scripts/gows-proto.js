@@ -85,6 +85,14 @@ function handleBuild(dir) {
         --ts_out=grpc_js:${PROTO_OUTPUT} \
         -I ${dir} ${dir}/gows.proto`;
 
+  // const command = `grpc_tools_node_protoc \
+  //   --plugin=protoc-gen-ts=node_modules/.bin/protoc-gen-ts.cmd \
+  //   --plugin=protoc-gen-grpc=node_modules/.bin/grpc_tools_node_protoc_plugin.cmd \
+  //   --js_out=import_style=commonjs,binary:${PROTO_OUTPUT} \
+  //   --grpc_out=grpc_js:${PROTO_OUTPUT} \
+  //   --ts_out=grpc_js:${PROTO_OUTPUT} \
+  //   -I ${dir} ${dir}/gows.proto`;
+
   try {
     execSync(command, { stdio: 'inherit' });
     console.log('gRPC files built successfully.');

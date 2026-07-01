@@ -30,6 +30,8 @@ import {
   WAHAWebhookPresenceUpdate,
   WAHAWebhookSessionStatus,
   WAHAWebhookStateChange,
+  WAHAWebhookPairingPasskeyRequest,
+  WAHAWebhookPairingPasskeyConfirmation,
 } from '@waha/structures/webhooks.dto';
 
 const WAHA_WEBHOOKS = [
@@ -62,5 +64,8 @@ const WAHA_WEBHOOKS = [
   WAHAWebhookGroupJoin,
   WAHAWebhookGroupLeave,
   WAHAWebhookStateChange,
+  WAHAWebhookPairingPasskeyRequest,
+  WAHAWebhookPairingPasskeyConfirmation,
 ];
 export { WAHA_WEBHOOKS };
+

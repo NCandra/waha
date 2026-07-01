@@ -412,3 +412,24 @@ export class WAHAWebhookEngineEvent extends WAHAWebhook {
 
   payload: EnginePayload;
 }
+
+export class WAHAWebhookPairingPasskeyRequest extends WAHAWebhook {
+  @ApiProperty({
+    description:
+      'The event is triggered when WhatsApp requests a passkey response.',
+  })
+  event = WAHAEvents.PAIRING_PASSKEY_REQUEST;
+
+  payload: any;
+}
+
+export class WAHAWebhookPairingPasskeyConfirmation extends WAHAWebhook {
+  @ApiProperty({
+    description:
+      'The event is triggered when WhatsApp requests a passkey confirmation.',
+  })
+  event = WAHAEvents.PAIRING_PASSKEY_CONFIRMATION;
+
+  payload: any;
+}
+
