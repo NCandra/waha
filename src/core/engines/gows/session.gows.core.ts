@@ -325,7 +325,10 @@ export class WhatsappSessionGoWSCore extends WhatsappSession {
       grpc.credentials.createInsecure(),
     );
 
-    await promisify(this.client.StartSession)(request).catch((err) => {
+    this.logger.info('Sending StartSession gRPC request...');
+    await promisify(this.client.StartSession)(request).then(() => {
+      this.logger.info('StartSession gRPC request succeeded.');
+    }).catch((err) => {
       this.logger.error('Failed to start the client');
       this.logger.error(err, err.stack);
       this.status = WAHASessionStatus.FAILED;
@@ -379,6 +382,15 @@ export class WhatsappSessionGoWSCore extends WhatsappSession {
   }
 
   subscribeEvents() {
+    this.all$.subscribe({
+      next: (payload) => {
+        this.logger.info({ event: payload.event, data: payload.data }, `GOWS Event received`);
+      },
+      error: (err) => {
+        this.logger.error(err, `GOWS Stream error`);
+      }
+    });
+
     // Handle connection status
     this.events = new EventsFromObservable<WhatsMeowEvent>(this.all$);
     const events = this.events;

@@ -65,12 +65,50 @@ async function downloadFiles(repo, ref, directory) {
   }
 }
 
+function patchProtoFile(filePath) {
+  let content = fs.readFileSync(filePath, 'utf8');
+  if (content.includes('SendPasskeyResponse')) {
+    return;
+  }
+
+  const serviceIndex = content.indexOf('service MessageService {');
+  if (serviceIndex === -1) {
+    throw new Error('MessageService not found in proto file');
+  }
+
+  const closingBraceRegex = /\n\s*}\s*\n/;
+  const match = content.slice(serviceIndex).match(closingBraceRegex);
+  if (!match) {
+    throw new Error('Closing brace for MessageService not found');
+  }
+
+  const matchIndex = serviceIndex + match.index;
+  const insertIndex = matchIndex + 1;
+
+  const passkeyRpcs = `\n  //\n  // Passkeys\n  //\n  rpc SendPasskeyResponse(SendPasskeyResponseRequest) returns (Empty);\n  rpc SendPasskeyConfirmation(Session) returns (Empty);\n`;
+
+  content = content.slice(0, insertIndex) + passkeyRpcs + content.slice(insertIndex);
+
+  const passkeyMessages = `\n//\n// Passkeys\n//\nmessage SendPasskeyResponseRequest {\n  Session session = 1;\n  string responseJson = 2;\n}\n`;
+
+  content += passkeyMessages;
+
+  fs.writeFileSync(filePath, content, 'utf8');
+  console.log(`Patched: ${filePath} with passkey definitions`);
+}
+
 // Handler for fetch command
 async function handleFetch(repo, ref, dir) {
   console.log(`Fetching .proto files from ${repo}@${ref} to ${dir}...`);
   cleanDirectory(dir, '.proto');
   await downloadFiles(repo, ref, dir);
+
+  const protoPath = path.join(dir, 'gows.proto');
+  if (fs.existsSync(protoPath)) {
+    patchProtoFile(protoPath);
+  }
 }
+
 
 // Handler for build command
 function handleBuild(dir) {

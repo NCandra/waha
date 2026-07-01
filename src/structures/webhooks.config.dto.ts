@@ -84,7 +84,12 @@ export class WebhookConfig {
   url: string;
 
   @ApiProperty({
-    example: ['message', 'session.status'],
+    example: [
+      'message',
+      'session.status',
+      'pairing.passkey.request',
+      'pairing.passkey.confirmation',
+    ],
     required: true,
     enum: AllEvents,
   })
