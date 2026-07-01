@@ -231,7 +231,8 @@ COPY --from=dashboard /dashboard ./dist/dashboard
 COPY ./gows-bin/gows /app/gows
 COPY .env.example ./.env.example
 COPY scripts/init-waha.js ./scripts/init-waha.js
-RUN chmod +x ./scripts/init-waha.js \
+RUN chmod +x /app/gows \
+  && chmod +x ./scripts/init-waha.js \
   && printf '%s\n' '#!/bin/sh' 'exec node /app/scripts/init-waha.js "$@"' > /usr/local/bin/init-waha \
   && chmod +x /usr/local/bin/init-waha
 ENV WAHA_GOWS_PATH=/app/gows
