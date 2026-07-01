@@ -273,7 +273,7 @@ export abstract class WhatsappSession {
               ({
                 status: value,
                 timestamp: timestamp,
-              }) as SessionStatusPoint,
+              } as SessionStatusPoint),
           ),
           // keep the last 3 entries
           scan<SessionStatusPoint, SessionStatusPoint[]>(
@@ -290,7 +290,7 @@ export abstract class WhatsappSession {
                 name: this.name,
                 status: statuses.at(-1)?.status, // current
                 statuses: statuses,
-              }) as WASessionStatusBody,
+              } as WASessionStatusBody),
           ),
         ),
     );
@@ -447,6 +447,14 @@ export abstract class WhatsappSession {
   }
 
   public requestCode(phoneNumber: string, method: string, params?: any) {
+    throw new NotImplementedByEngineError();
+  }
+
+  public sendPasskeyResponse(response: string | object): Promise<void> {
+    throw new NotImplementedByEngineError();
+  }
+
+  public sendPasskeyConfirmation(): Promise<void> {
     throw new NotImplementedByEngineError();
   }
 

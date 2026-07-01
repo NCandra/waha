@@ -23,6 +23,7 @@ import {
   QRCodeQuery,
   QRCodeValue,
   RequestCodeRequest,
+  SendPasskeyResponseRequest,
 } from '../structures/auth.dto';
 import { Base64File } from '../structures/files.dto';
 import { PoliciesGuard } from '@waha/core/auth/policies.guard';
@@ -67,6 +68,29 @@ class AuthController {
     @Body() request: RequestCodeRequest,
   ) {
     return session.requestCode(request.phoneNumber, request.method, request);
+  }
+
+  @Post('passkey/response')
+  @SessionApiParam
+  @ApiOperation({
+    summary: 'Send WebAuthn passkey registration/authentication response.',
+  })
+  async sendPasskeyResponse(
+    @SessionParam session: WhatsappSession,
+    @Body() request: SendPasskeyResponseRequest,
+  ): Promise<void> {
+    await session.sendPasskeyResponse(request.response);
+  }
+
+  @Post('passkey/confirmation')
+  @SessionApiParam
+  @ApiOperation({
+    summary: 'Send passkey pairing confirmation after validation.',
+  })
+  async sendPasskeyConfirmation(
+    @SessionParam session: WhatsappSession,
+  ): Promise<void> {
+    await session.sendPasskeyConfirmation();
   }
 }
 

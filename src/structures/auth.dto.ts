@@ -38,3 +38,12 @@ export class RequestCodeRequest {
 export class PairingCodeResponse {
   code: string;
 }
+
+export class SendPasskeyResponseRequest {
+  @ApiProperty({
+    description: 'WebAuthn response JSON string or object',
+    example:
+      '{"id": "...", "rawId": "...", "type": "public-key", "response": { ... }}',
+  })
+  response: string | object;
+}

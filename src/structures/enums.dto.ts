@@ -31,6 +31,8 @@ export enum WAHAEvents {
   EVENT_RESPONSE = 'event.response',
   EVENT_RESPONSE_FAILED = 'event.response.failed',
   ENGINE_EVENT = 'engine.event',
+  PAIRING_PASSKEY_REQUEST = 'pairing.passkey.request',
+  PAIRING_PASSKEY_CONFIRMATION = 'pairing.passkey.confirmation',
 }
 
 export type AllEventType = WAHAEvents | '*';

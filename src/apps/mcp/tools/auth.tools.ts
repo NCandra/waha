@@ -6,6 +6,8 @@ import {
   AuthQRInput,
   AuthRequestCodeInput,
   ScreenshotInput,
+  AuthSendPasskeyResponseInput,
+  AuthSendPasskeyConfirmationInput,
 } from '@waha/apps/mcp/tools/auth.zod';
 
 function AuthContent(key: string): any {
@@ -91,6 +93,50 @@ export class AuthTools extends McpController {
         '2. Tap More Options ⋮ or Settings\n' +
         '3. Tap Linked Devices → Link a device\n' +
         '4. Tap "Link with phone number instead" and enter the code',
+    });
+    return result;
+  }
+
+  @Tool('auth-send-passkey-response', {
+    title: 'Send passkey response',
+    description:
+      'Submit the WebAuthn passkey registration/authentication response to complete the passkey verification challenge.',
+    inputSchema: AuthSendPasskeyResponseInput,
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+    },
+  })
+  async sendPasskeyResponse({
+    session,
+    ...body
+  }: z.infer<typeof AuthSendPasskeyResponseInput>) {
+    const result = await this.textRequest({
+      method: 'POST',
+      url: `/api/${session}/auth/passkey/response`,
+      data: body,
+    });
+    return result;
+  }
+
+  @Tool('auth-send-passkey-confirmation', {
+    title: 'Send passkey confirmation',
+    description:
+      'Confirm passkey pairing completion after verifying the security code.',
+    inputSchema: AuthSendPasskeyConfirmationInput,
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+    },
+  })
+  async sendPasskeyConfirmation({
+    session,
+  }: z.infer<typeof AuthSendPasskeyConfirmationInput>) {
+    const result = await this.textRequest({
+      method: 'POST',
+      url: `/api/${session}/auth/passkey/confirmation`,
     });
     return result;
   }

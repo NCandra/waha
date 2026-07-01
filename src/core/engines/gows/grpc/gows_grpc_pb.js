@@ -587,6 +587,17 @@ function deserialize_messages_SearchNewslettersByViewRequest(buffer_arg) {
   return gows_pb.SearchNewslettersByViewRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_messages_SendPasskeyResponseRequest(arg) {
+  if (!(arg instanceof gows_pb.SendPasskeyResponseRequest)) {
+    throw new Error('Expected argument of type messages.SendPasskeyResponseRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_messages_SendPasskeyResponseRequest(buffer_arg) {
+  return gows_pb.SendPasskeyResponseRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_messages_Session(arg) {
   if (!(arg instanceof gows_pb.Session)) {
     throw new Error('Expected argument of type messages.Session');
@@ -1461,6 +1472,31 @@ getMessageById: {
     requestDeserialize: deserialize_messages_GetChatsRequest,
     responseSerialize: serialize_messages_JsonList,
     responseDeserialize: deserialize_messages_JsonList,
+  },
+  //
+// Passkeys
+//
+sendPasskeyResponse: {
+    path: '/messages.MessageService/SendPasskeyResponse',
+    requestStream: false,
+    responseStream: false,
+    requestType: gows_pb.SendPasskeyResponseRequest,
+    responseType: gows_pb.Empty,
+    requestSerialize: serialize_messages_SendPasskeyResponseRequest,
+    requestDeserialize: deserialize_messages_SendPasskeyResponseRequest,
+    responseSerialize: serialize_messages_Empty,
+    responseDeserialize: deserialize_messages_Empty,
+  },
+  sendPasskeyConfirmation: {
+    path: '/messages.MessageService/SendPasskeyConfirmation',
+    requestStream: false,
+    responseStream: false,
+    requestType: gows_pb.Session,
+    responseType: gows_pb.Empty,
+    requestSerialize: serialize_messages_Session,
+    requestDeserialize: deserialize_messages_Session,
+    responseSerialize: serialize_messages_Empty,
+    responseDeserialize: deserialize_messages_Empty,
   },
 };
 

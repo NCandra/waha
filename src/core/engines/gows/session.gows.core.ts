@@ -413,18 +413,25 @@ export class WhatsappSessionGoWSCore extends WhatsappSession {
       }
     });
     events.on(WhatsMeowEvent.QR_CHANNEL_ITEM, async (data) => {
-      if (!data.Event) {
+      const eventName = data.Event ?? data.event;
+      if (!eventName) {
         return;
       }
-      if (data.Event == 'success') {
+      if (eventName === 'success') {
         return;
       }
-      if (data.Event != 'code') {
+      if (
+        eventName === 'passkey-request' ||
+        eventName === 'passkey-confirmation'
+      ) {
+        return;
+      }
+      if (eventName !== 'code') {
         this.logger.warn(data, 'Failed QR item event');
         this.status = WAHASessionStatus.FAILED;
         return;
       }
-      const qr = data.Code;
+      const qr = data.Code ?? data.code;
       if (!qr) {
         return;
       }
@@ -557,38 +564,42 @@ export class WhatsappSessionGoWSCore extends WhatsappSession {
           msg?.Message?.protocolMessage?.key !== undefined
         );
       }),
-      mergeMap(async (message): Promise<WAMessageRevokedBody> => {
-        const afterMessage = await this.toWAMessage(message);
-        // Extract the revoked message ID from protocolMessage.key
-        const revokedMessageId = message.Message.protocolMessage.key?.ID;
-        return {
-          after: afterMessage,
-          before: null,
-          revokedMessageId: revokedMessageId,
-          _data: message,
-        };
-      }),
+      mergeMap(
+        async (message): Promise<WAMessageRevokedBody> => {
+          const afterMessage = await this.toWAMessage(message);
+          // Extract the revoked message ID from protocolMessage.key
+          const revokedMessageId = message.Message.protocolMessage.key?.ID;
+          return {
+            after: afterMessage,
+            before: null,
+            revokedMessageId: revokedMessageId,
+            _data: message,
+          };
+        },
+      ),
     );
     this.events2.get(WAHAEvents.MESSAGE_REVOKED).switch(messagesRevoked$);
 
     // Handle edited messages
     const messagesEdited$ = messages$.pipe(
       filter((message) => IsEditedMessage(message.Message)),
-      mergeMap(async (message): Promise<WAMessageEditedBody> => {
-        const waMessage = await this.toWAMessage(message);
-        const content = normalizeMessageContent(message.Message);
-        // Extract the body from editedMessage using extractBody function
-        const body = extractBody(content.protocolMessage.editedMessage) || '';
-        // Extract the original message ID from protocolMessage.key
-        // @ts-ignore
-        const editedMessageId = content.protocolMessage.key?.ID;
-        return {
-          ...waMessage,
-          body: body,
-          editedMessageId: editedMessageId,
-          _data: message,
-        };
-      }),
+      mergeMap(
+        async (message): Promise<WAMessageEditedBody> => {
+          const waMessage = await this.toWAMessage(message);
+          const content = normalizeMessageContent(message.Message);
+          // Extract the body from editedMessage using extractBody function
+          const body = extractBody(content.protocolMessage.editedMessage) || '';
+          // Extract the original message ID from protocolMessage.key
+          // @ts-ignore
+          const editedMessageId = content.protocolMessage.key?.ID;
+          return {
+            ...waMessage,
+            body: body,
+            editedMessageId: editedMessageId,
+            _data: message,
+          };
+        },
+      ),
     );
     this.events2.get(WAHAEvents.MESSAGE_EDITED).switch(messagesEdited$);
 
@@ -792,6 +803,41 @@ export class WhatsappSessionGoWSCore extends WhatsappSession {
 
     this.events2.get(WAHAEvents.LABEL_CHAT_ADDED).switch(labelChatAdded$);
     this.events2.get(WAHAEvents.LABEL_CHAT_DELETED).switch(labelChatDeleted$);
+
+    // Passkeys
+    const passkeyEvents$ = all$.pipe(
+      onlyEvent(WhatsMeowEvent.QR_CHANNEL_ITEM),
+      share(),
+    );
+
+    const passkeyRequest$ = passkeyEvents$.pipe(
+      filter((data: any) => {
+        const eventName = data.Event ?? data.event;
+        return eventName === 'passkey-request';
+      }),
+      map((data: any) => {
+        const req = data.PasskeyRequest ?? data.passkey_request;
+        return req;
+      }),
+    );
+
+    const passkeyConfirmation$ = passkeyEvents$.pipe(
+      filter((data: any) => {
+        const eventName = data.Event ?? data.event;
+        return eventName === 'passkey-confirmation';
+      }),
+      map((data: any) => {
+        const conf = data.PasskeyConfirmation ?? data.passkey_confirmation;
+        return conf;
+      }),
+    );
+
+    this.events2
+      .get(WAHAEvents.PAIRING_PASSKEY_REQUEST)
+      .switch(passkeyRequest$);
+    this.events2
+      .get(WAHAEvents.PAIRING_PASSKEY_CONFIRMATION)
+      .switch(passkeyConfirmation$);
   }
 
   @Activity()
@@ -847,6 +893,22 @@ export class WhatsappSessionGoWSCore extends WhatsappSession {
     const code: string = response.toObject().code;
     this.logger.info(`Your code: ${code}`);
     return { code: code };
+  }
+
+  @Activity()
+  public async sendPasskeyResponse(response: string | object): Promise<void> {
+    const responseJson =
+      typeof response === 'string' ? response : JSON.stringify(response);
+    const request = new messages.SendPasskeyResponseRequest({
+      session: this.session,
+      responseJson: responseJson,
+    });
+    await promisify(this.client.SendPasskeyResponse)(request);
+  }
+
+  @Activity()
+  public async sendPasskeyConfirmation(): Promise<void> {
+    await promisify(this.client.SendPasskeyConfirmation)(this.session);
   }
 
   async unpair() {

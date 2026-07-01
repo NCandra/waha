@@ -13,3 +13,14 @@ export const ScreenshotInput = z.object({
 export const AuthRequestCodeInput = DtoToZod(RequestCodeRequest).extend({
   session: z.string(),
 });
+
+export const AuthSendPasskeyResponseInput = z.object({
+  session: z.string(),
+  response: z
+    .union([z.string(), z.record(z.string(), z.any())])
+    .describe('WebAuthn response JSON string or object'),
+});
+
+export const AuthSendPasskeyConfirmationInput = z.object({
+  session: z.string(),
+});
